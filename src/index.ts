@@ -6,6 +6,7 @@ import { generateInit, isSupportedShell, SUPPORTED_SHELLS, type Shell } from "./
 import { run } from "./launch";
 import { onboard, nonInteractiveSetup } from "./onboard";
 import { isInteractive } from "./tty";
+import { upgrade, maybeNotify } from "./upgrade";
 
 const HELP = `ccjump — jump into a project and launch Claude Code
 
@@ -47,7 +48,9 @@ async function main(argv: string[]): Promise<number> {
       catch (e) { console.error(`ccjump: ${(e as Error).message}`); return 1; }
     }
     case "list": {
-      const rows = listProjects(loadOrDefault());
+      const cfg = loadOrDefault();
+      await maybeNotify(cfg, Date.now(), process.stdout.isTTY === true);
+      const rows = listProjects(cfg);
       if (!rows.length) { console.log("no projects yet — run `ccjump add`"); return 0; }
       const w = Math.max(...rows.map((r) => r.name.length));
       for (const r of rows) console.log(`${r.name.padEnd(w)}  ${r.path}`);
@@ -63,6 +66,7 @@ async function main(argv: string[]): Promise<number> {
       else nonInteractiveSetup(process.cwd());
       return 0;
     }
+    case "upgrade": return await upgrade();
     case "run": return await run(loadOrDefault(), args[0], args.slice(1));
     case "tty": {
       const cfg = loadOrDefault();
