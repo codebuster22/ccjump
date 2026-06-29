@@ -4,7 +4,7 @@ import { loadConfig, loadOrDefault, saveConfig, configExists } from "./config";
 import { addProject, removeProject, listProjects } from "./registry";
 import { generateInit, isSupportedShell, SUPPORTED_SHELLS, type Shell } from "./shells";
 import { run } from "./launch";
-import { onboard, nonInteractiveSetup } from "./onboard";
+import { onboard, nonInteractiveSetup, currentShell } from "./onboard";
 import { isInteractive } from "./tty";
 import { upgrade, maybeNotify } from "./upgrade";
 
@@ -53,7 +53,14 @@ async function main(argv: string[]): Promise<number> {
       const name = nameIdx >= 0 ? args[nameIdx + 1] : undefined;
       const skip = nameIdx >= 0 ? nameIdx + 1 : -1; // only skip the --name VALUE when present
       const path = args.find((a, i) => !a.startsWith("--") && i !== skip) ?? process.cwd();
-      try { const r = addProject(cfg, path, name); saveConfig(cfg); console.log(`registered: ${r.name} -> ${r.path}`); return 0; }
+      try {
+        const r = addProject(cfg, path, name); saveConfig(cfg);
+        console.log(`registered: ${r.name} -> ${r.path}`);
+        const sh = currentShell() ?? "zsh";
+        console.log(`  → use it now in this shell:    eval "$(ccjump init ${sh})"   (or open a new terminal)`);
+        console.log(`  → or launch without reloading: ccjump run ${r.name}`);
+        return 0;
+      }
       catch (e) { console.error(`ccjump: ${(e as Error).message}`); return 1; }
     }
     case "list": {

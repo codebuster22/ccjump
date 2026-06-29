@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Onboarding can skip the initial project registration (confirm prompt; add one later with `ccjump add`).
 - Onboarding marks your current shell (from `$SHELL`) as "(current shell)" in the shell picker.
+- `ccjump add` now prints how to activate the new command in your current shell (re-eval the init line, or use `ccjump run <name>`).
 
 ### Changed
 - Onboarding's project step shows the current directory so it's clear what will be registered.

@@ -61,6 +61,8 @@ test("add then list then init", async () => {
   const add = await cliEnv(["add", proj], xdg);
   expect(add.code).toBe(0);
   const name = proj.split("/").pop()!;
+  expect(add.out).toContain("ccjump init");        // activation hint
+  expect(add.out).toContain(`ccjump run ${name}`); // direct-launch hint
   const list = await cliEnv(["list"], xdg);
   expect(list.out).toContain(name);
   const init = await cliEnv(["init", "zsh"], xdg);
