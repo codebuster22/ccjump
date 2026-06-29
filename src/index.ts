@@ -1,9 +1,11 @@
 #!/usr/bin/env bun
 import { VERSION } from "./version";
-import { loadConfig, loadOrDefault, saveConfig } from "./config";
+import { loadConfig, loadOrDefault, saveConfig, configExists } from "./config";
 import { addProject, removeProject, listProjects } from "./registry";
 import { generateInit, isSupportedShell, SUPPORTED_SHELLS, type Shell } from "./shells";
 import { run } from "./launch";
+import { onboard, nonInteractiveSetup } from "./onboard";
+import { isInteractive } from "./tty";
 
 const HELP = `ccjump — jump into a project and launch Claude Code
 
@@ -56,6 +58,11 @@ async function main(argv: string[]): Promise<number> {
       try { removeProject(cfg, args[0]); saveConfig(cfg); console.log(`removed ${args[0]}`); return 0; }
       catch (e) { console.error(`ccjump: ${(e as Error).message}`); return 1; }
     }
+    case "setup": {
+      if (isInteractive(args)) await onboard(process.cwd());
+      else nonInteractiveSetup(process.cwd());
+      return 0;
+    }
     case "run": return await run(loadOrDefault(), args[0], args.slice(1));
     case "tty": {
       const cfg = loadOrDefault();
@@ -69,6 +76,14 @@ async function main(argv: string[]): Promise<number> {
   }
 }
 
-main(process.argv.slice(2))
+const argv = process.argv.slice(2);
+const result: Promise<number> =
+  argv.length === 0 && !configExists()
+    ? (isInteractive(argv)
+        ? onboard(process.cwd())
+        : Promise.resolve(nonInteractiveSetup(process.cwd()))
+      ).then(() => 0)
+    : main(argv);
+result
   .then((code) => process.exit(code))
   .catch((e) => { console.error(e); process.exit(1); });
