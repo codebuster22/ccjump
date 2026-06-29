@@ -36,3 +36,52 @@ test("unknown command exits non-zero", async () => {
   expect(code).toBe(1);
   expect(err).toContain("unknown command");
 });
+
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+function env(xdg: string) { return { ...process.env, XDG_CONFIG_HOME: xdg }; }
+async function cliEnv(args: string[], xdg: string) {
+  const proc = Bun.spawn({ cmd: ["bun", "run", "src/index.ts", ...args], env: env(xdg), stdout: "pipe", stderr: "pipe" });
+  const code = await proc.exited;
+  return { code, out: await new Response(proc.stdout).text(), err: await new Response(proc.stderr).text() };
+}
+
+test("add then list then init", async () => {
+  const xdg = mkdtempSync(join(tmpdir(), "xdg-"));
+  const proj = mkdtempSync(join(tmpdir(), "app-"));
+  const add = await cliEnv(["add", proj], xdg);
+  expect(add.code).toBe(0);
+  const name = proj.split("/").pop()!;
+  const list = await cliEnv(["list"], xdg);
+  expect(list.out).toContain(name);
+  const init = await cliEnv(["init", "zsh"], xdg);
+  expect(init.out).toContain(`ccjump run '${name}'`);
+  rmSync(xdg, { recursive: true, force: true }); rmSync(proj, { recursive: true, force: true });
+});
+
+test("init with no config is silent (no stdout/stderr, exit 0)", async () => {
+  const xdg = mkdtempSync(join(tmpdir(), "xdg-"));
+  const r = await cliEnv(["init", "zsh"], xdg);
+  expect(r.out).toBe("");
+  expect(r.err).toBe("");
+  expect(r.code).toBe(0);
+  rmSync(xdg, { recursive: true, force: true });
+});
+
+test("init with unsupported shell is inert", async () => {
+  const xdg = mkdtempSync(join(tmpdir(), "xdg-"));
+  const r = await cliEnv(["init", "fish"], xdg);
+  expect(r.out).toBe("");
+  expect(r.code).toBe(1);
+  rmSync(xdg, { recursive: true, force: true });
+});
+
+test("tty on/status toggles forceTty", async () => {
+  const xdg = mkdtempSync(join(tmpdir(), "xdg-"));
+  expect((await cliEnv(["tty", "status"], xdg)).out).toContain("OFF");
+  expect((await cliEnv(["tty", "on"], xdg)).out).toContain("ON");
+  expect((await cliEnv(["tty", "status"], xdg)).out).toContain("ON");
+  rmSync(xdg, { recursive: true, force: true });
+});
