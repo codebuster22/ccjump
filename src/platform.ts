@@ -15,7 +15,7 @@ export function assetName(o: OS = detectOS(), a: Arch = detectArch()): string {
   const base = `ccjump-${o}-${a}`;
   return o === "windows" ? `${base}.exe` : base;
 }
-export function homeDir(): string { return os.homedir(); }
+export function homeDir(): string { return process.env.HOME || os.homedir(); }
 export function configDir(): string {
   const xdg = process.env.XDG_CONFIG_HOME;
   const root = xdg && xdg.length > 0 ? xdg : `${homeDir()}/.config`;
