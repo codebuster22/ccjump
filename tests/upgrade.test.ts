@@ -1,5 +1,5 @@
 // tests/upgrade.test.ts
-import { test, expect, afterEach } from "bun:test";
+import { test, expect, afterEach, spyOn } from "bun:test";
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -51,9 +51,11 @@ test("upgrade aborts and cleans up tmp on checksum mismatch, without replacing s
     return new Response("BINARY-BYTES", { status: 200 });
   }) as typeof fetch;
 
+  const errSpy = spyOn(console, "error").mockImplementation(() => {});
   const code = await upgrade(self);
   expect(code).toBe(1);
   expect(readFileSync(self, "utf8")).toBe("ORIGINAL");                 // self NOT replaced
   expect(existsSync(join(dir, ".ccjump-999.0.0.tmp"))).toBe(false);    // tmp cleaned up
+  errSpy.mockRestore();
   rmSync(dir, { recursive: true, force: true });
 });
