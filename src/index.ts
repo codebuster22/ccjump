@@ -27,7 +27,16 @@ Unofficial. Not affiliated with or endorsed by Anthropic.`;
 async function main(argv: string[]): Promise<number> {
   const [cmd, ...args] = argv;
   if (cmd === "--version" || cmd === "-v") { console.log(VERSION); return 0; }
-  if (!cmd || cmd === "--help" || cmd === "-h") { console.log(HELP); return 0; }
+  if (cmd === "--help" || cmd === "-h") { console.log(HELP); return 0; }
+  if (!cmd) {
+    const rows = listProjects(loadOrDefault());
+    if (!rows.length) { console.log(HELP); return 0; }
+    const w = Math.max(...rows.map((r) => r.name.length));
+    console.log("ccjump — your registered projects:\n");
+    for (const r of rows) console.log(`  ${r.name.padEnd(w)}  ${r.path}`);
+    console.log("\nType a project name to launch it. Run `ccjump --help` for all commands.");
+    return 0;
+  }
 
   switch (cmd) {
     case "init": {
@@ -71,7 +80,12 @@ async function main(argv: string[]): Promise<number> {
     case "tty": {
       const cfg = loadOrDefault();
       const sub = args[0];
-      if (sub === "on") { cfg.forceTty = true; saveConfig(cfg); console.log("ccjump: /dev/tty handling ON"); return 0; }
+      if (sub === "on") {
+        cfg.forceTty = true; saveConfig(cfg);
+        console.log("ccjump: /dev/tty handling ON");
+        if (process.platform === "win32") console.log("ccjump: note — /dev/tty is unavailable on native Windows; this has no effect there.");
+        return 0;
+      }
       if (sub === "off") { cfg.forceTty = false; saveConfig(cfg); console.log("ccjump: /dev/tty handling OFF"); return 0; }
       if (!sub || sub === "status") { console.log(`ccjump: /dev/tty handling is ${cfg.forceTty ? "ON" : "OFF"}`); return 0; }
       console.error("ccjump: usage: ccjump tty on|off|status"); return 1;

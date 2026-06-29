@@ -65,6 +65,8 @@ curl -fsSL https://raw.githubusercontent.com/codebuster22/ccjump/main/install.sh
 
 Make sure `~/.local/bin` is on your `PATH` — the installer warns you if it isn't. To install elsewhere, set `CCJUMP_BIN_DIR`.
 
+On macOS, `~/.local/bin` may not be on your `PATH` by default — add `export PATH="$HOME/.local/bin:$PATH"` to your shell profile (the installer warns if it isn't there).
+
 > `ccjump` launches [Claude Code](https://claude.com/claude-code), so you'll want the `claude` CLI on your `PATH` too. ccjump prints a friendly pointer if it can't find it.
 
 ## Usage
@@ -182,6 +184,8 @@ export CCJUMP_NO_UPDATE_CHECK=1   # add to your shell rc to make it permanent
 ## Windows
 
 v1 supports **Git Bash** and **WSL**, where the bash/zsh integration works unchanged. Native PowerShell (`install.ps1`, `ccjump init powershell`, `$PROFILE` wiring) is deferred to a later release.
+
+**Known limitations:** Native Windows **ARM64** has no prebuilt binary yet — use the x64 build under emulation; a native arm64 binary is planned. Native PowerShell/cmd remains deferred.
 
 ## Building from source
 

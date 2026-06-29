@@ -5,6 +5,16 @@ import { join } from "node:path";
 import { defaultConfig } from "../src/config";
 import { isSupportedShell, generateInit, isWired, wireShell, rcPath } from "../src/shells";
 
+test("rcPath(bash, darwin) uses .bash_profile (macOS login shells)", () => {
+  expect(rcPath("bash", "darwin")).toMatch(/\/.bash_profile$/);
+});
+test("rcPath(bash, linux) uses .bashrc", () => {
+  expect(rcPath("bash", "linux")).toMatch(/\/.bashrc$/);
+});
+test("rcPath(zsh, darwin) uses .zshrc", () => {
+  expect(rcPath("zsh", "darwin")).toMatch(/\/.zshrc$/);
+});
+
 test("allowlist", () => {
   expect(isSupportedShell("bash")).toBe(true);
   expect(isSupportedShell("zsh")).toBe(true);

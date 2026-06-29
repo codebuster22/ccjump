@@ -17,13 +17,20 @@ export function buildArgs(cfg: Config, rest: string[]): string[] {
 
 export function findClaude(): string | null { return Bun.which("claude"); }
 
+// On Windows, npm installs `claude` as claude.cmd (a batch wrapper). CreateProcess cannot exec
+// .cmd/.bat directly, so route them through cmd.exe. .exe and POSIX binaries run as-is.
+export function spawnCmd(claude: string, args: string[], platform: string = process.platform): string[] {
+  if (platform === "win32" && /\.(cmd|bat)$/i.test(claude)) return ["cmd.exe", "/c", claude, ...args];
+  return [claude, ...args];
+}
+
 export const FAIL_WINDOW_MS = 5000;
 
 // An immediate non-zero exit in an interactive terminal is the signature of Claude failing
 // to start its TUI (some setups, e.g. WSL+oh-my-zsh, intermittently don't hand a launched
 // process a real tty). Only offer the /dev/tty workaround then — and not if already enabled.
-export function shouldOfferTty(code: number, elapsedMs: number, forceTty: boolean, stdoutIsTty: boolean): boolean {
-  return !forceTty && stdoutIsTty && code !== 0 && elapsedMs < FAIL_WINDOW_MS;
+export function shouldOfferTty(code: number, elapsedMs: number, forceTty: boolean, stdoutIsTty: boolean, platform: string = process.platform): boolean {
+  return platform !== "win32" && !forceTty && stdoutIsTty && code !== 0 && elapsedMs < FAIL_WINDOW_MS;
 }
 
 // Spawn claude in `cwd`. When useTty, hand it the controlling terminal (/dev/tty) — the fix
@@ -31,7 +38,7 @@ export function shouldOfferTty(code: number, elapsedMs: number, forceTty: boolea
 function spawnClaude(claude: string, args: string[], cwd: string, useTty: boolean): Promise<number> {
   let io: number | "inherit" = "inherit";
   if (useTty) { try { io = openSync("/dev/tty", "r+"); } catch { io = "inherit"; } }
-  return Bun.spawn({ cmd: [claude, ...args], cwd, stdin: io, stdout: io, stderr: io }).exited;
+  return Bun.spawn({ cmd: spawnCmd(claude, args), cwd, stdin: io, stdout: io, stderr: io }).exited;
 }
 
 // Synchronous y/N read straight from the controlling terminal (reliable post-launch).

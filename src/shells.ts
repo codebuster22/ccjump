@@ -8,7 +8,9 @@ export type Shell = "bash" | "zsh";
 export const SUPPORTED_SHELLS: Shell[] = ["bash", "zsh"];
 export function isSupportedShell(s: string): s is Shell { return (SUPPORTED_SHELLS as string[]).includes(s); }
 
-export function rcPath(shell: Shell): string {
+export function rcPath(shell: Shell, platform: string = process.platform): string {
+  // macOS Terminal opens bash as a LOGIN shell, which sources ~/.bash_profile, not ~/.bashrc.
+  if (shell === "bash" && platform === "darwin") return `${homeDir()}/.bash_profile`;
   return `${homeDir()}/${shell === "zsh" ? ".zshrc" : ".bashrc"}`;
 }
 

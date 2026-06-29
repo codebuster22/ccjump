@@ -5,9 +5,20 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.1]
 
-Initial release of `ccjump` (targeting `0.1.0`).
+### Fixed
+- macOS bash: wire `~/.bash_profile` (login shells don't source `~/.bashrc`).
+- Git Bash / MSYS2: resolve the home directory via the OS API on Windows (`$HOME` there is a POSIX path Win32 can't use).
+- Git Bash: launch `claude` when it's installed as `claude.cmd`/`.bat` by routing through `cmd.exe /c`.
+- Don't offer the `/dev/tty` (`forceTty`) workaround on native Windows, where it can't take effect.
+
+### Changed
+- Bare `ccjump` (when already configured) lists your registered projects and a usage hint instead of printing full help.
+
+## [0.1.0]
+
+Initial release of `ccjump`.
 
 ### Added
 
@@ -22,4 +33,6 @@ Initial release of `ccjump` (targeting `0.1.0`).
 - **Installer** — POSIX `install.sh` with `uname`-based OS/arch detection, install to `~/.local/bin` (overridable via `CCJUMP_BIN_DIR`), and TTY-aware onboarding.
 - **Distribution** — `bun build --compile` standalone binaries for linux/darwin (x64/arm64) and windows-x64; GitHub Actions for CI (tests, shellcheck, bash/zsh integration) and tag-driven releases with checksums.
 
-[Unreleased]: https://github.com/codebuster22/ccjump/commits/main
+[Unreleased]: https://github.com/codebuster22/ccjump/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/codebuster22/ccjump/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/codebuster22/ccjump/commits/v0.1.0

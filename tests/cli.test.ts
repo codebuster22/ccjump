@@ -19,13 +19,15 @@ test("--help prints usage and exits 0", async () => {
   expect(out).toContain("ccjump");
 });
 
-test("no args prints usage and exits 0 (with a config present)", async () => {
+test("no args lists registered projects when a config exists", async () => {
   const xdg = mkdtempSync(join(tmpdir(), "xdg-"));
   const proj = mkdtempSync(join(tmpdir(), "app-"));
   await cliEnv(["add", proj], xdg);            // seed a config so configExists() is true
-  const { code, out } = await cliEnv([], xdg); // no-args WITH config -> HELP
+  const name = proj.split("/").pop()!;
+  const { code, out } = await cliEnv([], xdg); // no-args WITH config -> list projects
   expect(code).toBe(0);
-  expect(out).toContain("ccjump");
+  expect(out).toContain(name);       // shows the registered project
+  expect(out).toContain("--help");   // hints at full usage
   rmSync(xdg, { recursive: true, force: true });
   rmSync(proj, { recursive: true, force: true });
 });
