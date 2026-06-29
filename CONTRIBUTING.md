@@ -107,6 +107,12 @@ chore: bump dependencies
 
 Keep each commit focused. The subject is imperative and lower-case; explain the *why* in the body when it isn't obvious.
 
+## Changelog (required)
+
+**Every PR that changes the `ccjump` tool (anything in `src/`, `install.sh`, or `scripts/`) must add a `CHANGELOG.md` entry in the same PR.** Add a bullet under the current unreleased version (the top-most `## [X.Y.Z]`), categorized `Added` / `Changed` / `Fixed` / `Removed` per [Keep a Changelog](https://keepachangelog.com/). Once a version is released, start a new `## [Unreleased]` section above it.
+
+CI enforces this on every PR (`.github/workflows/changelog.yml`). For a non-functional PR (CI, docs, chores) that genuinely needs no entry, apply the **`skip-changelog`** label to bypass the check.
+
 ## Pull requests
 
 1. Fork the repo and create a branch from `main`.
@@ -115,10 +121,10 @@ Keep each commit focused. The subject is imperative and lower-case; explain the 
    ```sh
    bun test && bash tests/install.test.sh && bash tests/integration/init.test.sh
    ```
-4. Update docs (README/CHANGELOG) if behavior changed.
+4. **Add your `CHANGELOG.md` entry** (see [Changelog](#changelog-required) above) — required unless the change is non-functional (then use the `skip-changelog` label).
 5. Open a PR using the [pull request template](.github/PULL_REQUEST_TEMPLATE.md) and link any related issue.
 
-CI runs the same checks plus `shellcheck install.sh`. A maintainer will review; please be responsive to feedback (and feel free to push back with reasoning — see our review culture in the Code of Conduct).
+CI runs the same checks plus `shellcheck install.sh` and the changelog gate. A maintainer will review; please be responsive to feedback (and feel free to push back with reasoning — see our review culture in the Code of Conduct).
 
 ## Releasing (maintainers)
 

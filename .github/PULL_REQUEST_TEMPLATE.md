@@ -35,5 +35,6 @@ bash tests/integration/init.test.sh
 - [ ] Added/updated tests for the change
 - [ ] Followed the conventions in CONTRIBUTING.md (TypeScript strict, inert `init`, idempotent rc writes, supported shells = bash/zsh)
 - [ ] Commits use Conventional Commits
-- [ ] Updated docs (README / CHANGELOG) if behavior changed
+- [ ] Added a `CHANGELOG.md` entry under the current unreleased version (or applied the `skip-changelog` label for a non-functional change)
+- [ ] Updated README if behavior changed
 - [ ] Kept the "Unofficial — not affiliated with Anthropic" disclaimer and avoided Anthropic trademarks
