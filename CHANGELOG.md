@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2]
+
+### Added
+- Onboarding can skip the initial project registration (confirm prompt; add one later with `ccjump add`).
+- Onboarding marks your current shell (from `$SHELL`) as "(current shell)" in the shell picker.
+
+### Changed
+- Onboarding's project step shows the current directory so it's clear what will be registered.
+
 ## [0.1.1]
 
 ### Fixed
@@ -33,6 +42,7 @@ Initial release of `ccjump`.
 - **Installer** — POSIX `install.sh` with `uname`-based OS/arch detection, install to `~/.local/bin` (overridable via `CCJUMP_BIN_DIR`), and TTY-aware onboarding.
 - **Distribution** — `bun build --compile` standalone binaries for linux/darwin (x64/arm64) and windows-x64; GitHub Actions for CI (tests, shellcheck, bash/zsh integration) and tag-driven releases with checksums.
 
-[Unreleased]: https://github.com/codebuster22/ccjump/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/codebuster22/ccjump/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/codebuster22/ccjump/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/codebuster22/ccjump/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/codebuster22/ccjump/commits/v0.1.0

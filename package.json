@@ -1,6 +1,6 @@
 {
   "name": "ccjump",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Jump into a project and launch Claude Code. Unofficial; not affiliated with Anthropic.",
   "type": "module",
   "scripts": { "test": "bun test", "build": "bun run scripts/build.ts", "start": "bun run src/index.ts" },
