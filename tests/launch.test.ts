@@ -1,5 +1,5 @@
 // tests/launch.test.ts
-import { test, expect } from "bun:test";
+import { test, expect, spyOn } from "bun:test";
 import { defaultConfig } from "../src/config";
 import { permFlag, buildArgs, run, shouldOfferTty } from "../src/launch";
 
@@ -16,6 +16,9 @@ test("buildArgs composes perms + launchArgs + mode + passthrough", () => {
   expect(buildArgs(c, ["resume", "abc"])).toEqual(["--dangerously-skip-permissions", "--verbose", "--resume", "abc"]);
   expect(buildArgs(c, ["continue"])).toEqual(["--dangerously-skip-permissions", "--verbose", "--continue"]);
   expect(buildArgs(c, ["--model", "opus"])).toEqual(["--dangerously-skip-permissions", "--verbose", "--model", "opus"]);
+  expect(buildArgs(c, ["--dangerously-skip-permissions"])).toEqual([
+    "--dangerously-skip-permissions", "--verbose", "--dangerously-skip-permissions"
+  ]);
 });
 
 test("shouldOfferTty fires only on a quick non-zero exit in a tty, when not already forced", () => {
@@ -27,5 +30,7 @@ test("shouldOfferTty fires only on a quick non-zero exit in a tty, when not alre
 });
 
 test("run errors on unknown project", async () => {
+  const spy = spyOn(console, "error").mockImplementation(() => {});
   expect(await run(defaultConfig(), "ghost", [])).toBe(1);
+  spy.mockRestore();
 });
