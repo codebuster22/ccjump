@@ -1,0 +1,15 @@
+# .github/workflows/ci.yml
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun test
+      - run: sudo apt-get update && sudo apt-get install -y shellcheck zsh
+      - run: shellcheck install.sh
+      - run: bash tests/install.test.sh
+      - run: bash tests/integration/init.test.sh
