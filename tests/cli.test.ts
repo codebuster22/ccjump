@@ -19,10 +19,15 @@ test("--help prints usage and exits 0", async () => {
   expect(out).toContain("ccjump");
 });
 
-test("no args prints usage and exits 0", async () => {
-  const { code, out } = await cli([]);
+test("no args prints usage and exits 0 (with a config present)", async () => {
+  const xdg = mkdtempSync(join(tmpdir(), "xdg-"));
+  const proj = mkdtempSync(join(tmpdir(), "app-"));
+  await cliEnv(["add", proj], xdg);            // seed a config so configExists() is true
+  const { code, out } = await cliEnv([], xdg); // no-args WITH config -> HELP
   expect(code).toBe(0);
   expect(out).toContain("ccjump");
+  rmSync(xdg, { recursive: true, force: true });
+  rmSync(proj, { recursive: true, force: true });
 });
 
 test("-h prints usage and exits 0", async () => {
