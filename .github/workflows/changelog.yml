@@ -1,5 +1,5 @@
-# Fails a pull request that doesn't update CHANGELOG.md.
-# Bypass with the "skip-changelog" label for non-functional PRs (CI, docs, chores).
+# Require a CHANGELOG.md entry on PRs that change the ccjump tool (src/, install.sh, scripts/).
+# Docs/CI/chore PRs pass automatically. Bypass anytime with the "skip-changelog" label.
 name: changelog
 on:
   pull_request:
@@ -9,11 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dangoslen/changelog-enforcer@v3
         with:
-          changeLogPath: CHANGELOG.md
-          skipLabels: skip-changelog
-          missingUpdateErrorMessage: >-
-            No CHANGELOG.md entry found. Add a bullet under the current unreleased
-            version (Added/Changed/Fixed/Removed), or apply the 'skip-changelog'
-            label if this PR doesn't change the ccjump tool.
+          fetch-depth: 0
+      - name: Require CHANGELOG.md when the tool changes
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-changelog') }}
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed=$(git diff --name-only "$BASE...$HEAD")
+          echo "Changed files in this PR:"
+          echo "$changed"
+          tool=$(echo "$changed" | grep -E '^(src/|install\.sh$|scripts/)' || true)
+          cl=$(echo "$changed"   | grep -E '^CHANGELOG\.md$'            || true)
+          if [ -n "$tool" ] && [ -z "$cl" ]; then
+            echo "::error::Tool code changed (src/, install.sh, scripts/) without a CHANGELOG.md entry. Add a bullet (Added/Changed/Fixed/Removed) under the current unreleased version, or apply the 'skip-changelog' label if this PR doesn't change the tool."
+            exit 1
+          fi
+          echo "Changelog check OK."
