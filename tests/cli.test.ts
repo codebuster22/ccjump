@@ -19,6 +19,18 @@ test("--help prints usage and exits 0", async () => {
   expect(out).toContain("ccjump");
 });
 
+test("no args prints usage and exits 0", async () => {
+  const { code, out } = await cli([]);
+  expect(code).toBe(0);
+  expect(out).toContain("ccjump");
+});
+
+test("-h prints usage and exits 0", async () => {
+  const { code, out } = await cli(["-h"]);
+  expect(code).toBe(0);
+  expect(out).toContain("ccjump");
+});
+
 test("unknown command exits non-zero", async () => {
   const { code, err } = await cli(["frobnicate"]);
   expect(code).toBe(1);

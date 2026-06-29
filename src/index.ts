@@ -25,4 +25,6 @@ async function main(argv: string[]): Promise<number> {
   return 1;
 }
 
-main(process.argv.slice(2)).then((code) => process.exit(code));
+main(process.argv.slice(2))
+  .then((code) => process.exit(code))
+  .catch((e) => { console.error(e); process.exit(1); });
