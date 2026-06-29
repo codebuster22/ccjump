@@ -21,6 +21,6 @@ export WORK_LOG="$WORK/curl.log"
 # run installer with stubs first on PATH, no TTY, custom bin dir
 CCJUMP_BIN_DIR="$WORK/bin" PATH="$WORK:$PATH" sh "$HERE/install.sh" </dev/null >/dev/null 2>&1 || true
 
-grep -q "ccjump-linux-x64" "$WORK_LOG" || { echo "FAIL: expected linux-x64 asset in URL"; cat "$WORK_LOG"; exit 1; }
+grep -q "github.com/codebuster22/ccjump/releases/latest/download/ccjump-linux-x64" "$WORK_LOG" || { echo "FAIL: expected full download URL in curl log"; cat "$WORK_LOG"; exit 1; }
 test -f "$WORK/bin/ccjump" || { echo "FAIL: binary not placed"; exit 1; }
 echo "PASS"
