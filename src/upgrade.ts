@@ -1,5 +1,5 @@
 // src/upgrade.ts
-import { renameSync, chmodSync, readFileSync } from "node:fs";
+import { renameSync, chmodSync, readFileSync, unlinkSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { VERSION } from "./version";
 import { detectOS, assetName } from "./platform";
@@ -13,17 +13,25 @@ export function isNewer(latest: string, current: string): boolean {
   return false;
 }
 
-export async function upgrade(): Promise<number> {
+export async function upgrade(self: string = process.execPath): Promise<number> {
   const latest = await latestVersion();
   if (!isNewer(latest, VERSION)) { console.log(`ccjump ${VERSION} is up to date`); return 0; }
   const asset = assetName();
-  const self = process.execPath;
   const tmp = join(dirname(self), `.ccjump-${latest}.tmp`);
   await downloadTo(assetUrl(latest, asset), tmp);
-  const want = (await fetchChecksums(latest))[asset];
-  if (!want || sha256(readFileSync(tmp)) !== want) { console.error("ccjump: checksum mismatch — aborting"); return 1; }
-  if (detectOS() === "windows") { renameSync(self, self + ".old"); renameSync(tmp, self); }
-  else { chmodSync(tmp, 0o755); renameSync(tmp, self); }
+  try {
+    const want = (await fetchChecksums(latest))[asset];
+    if (!want || sha256(readFileSync(tmp)) !== want) {
+      console.error("ccjump: checksum mismatch — aborting");
+      try { unlinkSync(tmp); } catch { /* best-effort */ }
+      return 1;
+    }
+    if (detectOS() === "windows") { renameSync(self, self + ".old"); renameSync(tmp, self); }
+    else { chmodSync(tmp, 0o755); renameSync(tmp, self); }
+  } catch (e) {
+    try { unlinkSync(tmp); } catch { /* best-effort */ }
+    throw e;
+  }
   console.log(`ccjump upgraded ${VERSION} -> ${latest}`);
   return 0;
 }
